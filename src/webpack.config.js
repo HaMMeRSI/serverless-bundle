@@ -34,7 +34,7 @@ const nodeVersion = config.nodeVersion;
 const externals = config.options.externals;
 const copyFiles = config.options.copyFiles;
 const concatText = config.options.concatText;
-const chunks = config.options.chunks;
+const splitChunks = config.options.splitChunks;
 const esbuildNodeVersion = "node" + nodeVersion;
 const forceExclude = config.options.forceExclude;
 const ignorePackages = config.options.ignorePackages;
@@ -435,7 +435,7 @@ function alias() {
 function optimization() {
   const optimization = {
     nodeEnv: false,
-    splitChunks: chunks || false,
+    splitChunks: splitChunks || false,
   };
 
   // PERFORMANCE ONLY FOR DEVELOPMENT
