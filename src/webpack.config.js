@@ -34,7 +34,6 @@ const nodeVersion = config.nodeVersion;
 const externals = config.options.externals;
 const copyFiles = config.options.copyFiles;
 const concatText = config.options.concatText;
-const splitChunks = config.options.splitChunks;
 const esbuildNodeVersion = "node" + nodeVersion;
 const forceExclude = config.options.forceExclude;
 const ignorePackages = config.options.ignorePackages;
@@ -435,7 +434,32 @@ function alias() {
 function optimization() {
   const optimization = {
     nodeEnv: false,
-    splitChunks: splitChunks || false,
+    runtimeChunk: "single",
+    moduleIds: "deterministic",
+    splitChunks: {
+      chunks: "all",
+      minSize: 1,
+      minSizeReduction: 1,
+      cacheGroups: {
+        vendors: {
+          test: /node_modules/,
+          name: "vendors",
+          chunks: "all",
+          priority: -10,
+          reuseExistingChunk: true,
+        },
+        default: {
+          test: /packages\/.*\.[tj]s$/,
+          name(module) {
+            return module.resourceResolveData.relativePath;
+          },
+
+          minChunks: 1,
+          priority: -20,
+          reuseExistingChunk: true,
+        },
+      },
+    },
   };
 
   // PERFORMANCE ONLY FOR DEVELOPMENT
@@ -450,6 +474,7 @@ function optimization() {
         minimizer: [
           new ESBuildMinifyPlugin({
             target: esbuildNodeVersion,
+            exclude: /src\//,
           }),
         ],
       };
