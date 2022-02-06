@@ -34,6 +34,7 @@ const nodeVersion = config.nodeVersion;
 const externals = config.options.externals;
 const copyFiles = config.options.copyFiles;
 const concatText = config.options.concatText;
+const splitVendors = config.options.splitVendors;
 const esbuildNodeVersion = "node" + nodeVersion;
 const forceExclude = config.options.forceExclude;
 const ignorePackages = config.options.ignorePackages;
@@ -434,32 +435,34 @@ function alias() {
 function optimization() {
   const optimization = {
     nodeEnv: false,
-    moduleIds: "deterministic",
-    splitChunks: {
+  };
+
+  if (splitVendors) {
+    optimization.moduleIds = "deterministic";
+    optimization.splitChunks = {
       chunks: "all",
       minSize: 1,
       minSizeReduction: 1,
-      cacheGroups: {
-        vendors: {
-          test: /node_modules/,
-          name: "vendors",
-          chunks: "all",
-          priority: -10,
-          reuseExistingChunk: true,
-        },
-        default: {
-          test: /packages\/.*\.[tj]s$/,
-          name(module) {
+      defaultVendors: {
+        test: /[\\/]node_modules[\\/]/,
+        priority: -10,
+        reuseExistingChunk: true,
+        name: "vendors",
+      },
+      default: {
+        minChunks: 1,
+        priority: -20,
+        reuseExistingChunk: true,
+        name(module) {
+          if (module.resourceResolveData) {
             return module.resourceResolveData.relativePath;
-          },
+          }
 
-          minChunks: 1,
-          priority: -20,
-          reuseExistingChunk: true,
+          return "others";
         },
       },
-    },
-  };
+    };
+  }
 
   // PERFORMANCE ONLY FOR DEVELOPMENT
   return isLocal
