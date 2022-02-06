@@ -437,28 +437,35 @@ function optimization() {
     nodeEnv: false,
   };
 
+  const minifierOptions = {
+    target: esbuildNodeVersion,
+  };
+
   if (splitVendors) {
+    minifierOptions.include = /vendors/;
     optimization.moduleIds = "deterministic";
     optimization.splitChunks = {
       chunks: "all",
       minSize: 1,
       minSizeReduction: 1,
-      defaultVendors: {
-        test: /[\\/]node_modules[\\/]/,
-        priority: -10,
-        reuseExistingChunk: true,
-        name: "vendors",
-      },
-      default: {
-        minChunks: 1,
-        priority: -20,
-        reuseExistingChunk: true,
-        name(module) {
-          if (module.resourceResolveData) {
-            return module.resourceResolveData.relativePath;
-          }
+      cacheGroups: {
+        defaultVendors: {
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10,
+          reuseExistingChunk: true,
+          name: "vendors",
+        },
+        default: {
+          minChunks: 1,
+          priority: -20,
+          reuseExistingChunk: true,
+          name(module) {
+            if (module.resourceResolveData) {
+              return module.resourceResolveData.relativePath;
+            }
 
-          return "others";
+            return "others";
+          },
         },
       },
     };
@@ -473,12 +480,7 @@ function optimization() {
       }
     : {
         ...optimization,
-        minimizer: [
-          new ESBuildMinifyPlugin({
-            target: esbuildNodeVersion,
-            exclude: /src\//,
-          }),
-        ],
+        minimizer: [new ESBuildMinifyPlugin(minifierOptions)],
       };
 }
 
