@@ -434,7 +434,6 @@ function alias() {
 function optimization() {
   const optimization = {
     nodeEnv: false,
-    runtimeChunk: "single",
     moduleIds: "deterministic",
     splitChunks: {
       chunks: "all",
