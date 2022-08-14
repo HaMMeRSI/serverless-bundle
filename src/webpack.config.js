@@ -35,6 +35,7 @@ const externals = config.options.externals;
 const copyFiles = config.options.copyFiles;
 const concatText = config.options.concatText;
 const splitVendors = config.options.splitVendors;
+const experiments = config.options.experiments;
 const esbuildNodeVersion = "node" + nodeVersion;
 const forceExclude = config.options.forceExclude;
 const ignorePackages = config.options.ignorePackages;
@@ -299,7 +300,7 @@ function plugins() {
 
     if (ENABLE_LINTING) {
       if (parsedTsConfig.exclude) {
-        tsEslintConfig.ignorePatterns = parsedTsConfig.exclude
+        tsEslintConfig.ignorePatterns = parsedTsConfig.exclude;
       }
       forkTsCheckerWebpackOptions.eslint = {
         files: path.join(servicePath, "**/*.ts"),
@@ -516,6 +517,7 @@ module.exports = {
   module: loaders(),
   optimization: optimization(),
   plugins: plugins(),
+  experiments,
   node: {
     __dirname: false,
   },
